@@ -8,6 +8,7 @@ const crypto = require('crypto');
 const { GameState } = require('./game');
 const { HFBTRuntime } = require('./hfbt');
 const { QuantumTickEngine, MorphVector } = require('./quantum-tick');
+const { RuntimeCoordinator } = require('./runtime-coordinator');
 
 const ROOT = path.resolve(__dirname, '..');
 const STATIC_DIR = path.join(ROOT, 'public');
@@ -16,46 +17,47 @@ const PORT = Number(process.env.PORT || 8787);
 
 const game = new GameState();
 const hfbt = new HFBTRuntime();
-const quantum = new QuantumTickEngine();
+const runtime = new RuntimeCoordinator(game, hfbt);
 const clients = new Map();
 const serverStarted = Date.now();
 
-function registerEntityProcessors() {
-  const players = Array.from(game.players.values());
-  for (const player of players) {
-    if (!quantum.getProcessor(player.id)) {
-      const processor = quantum.registerProcessor(player.id);
-      processor.state = new MorphVector(
-        player.x, player.y, player.z, 0,
-        player.health / 100, player.energy / 100, player.stamina / 100, player.score / 1000
-      );
-      processor.velocity = new MorphVector(0, 0, 0, 0, 0, 0, 0, 0);
-    }
+function registerRuntimeEntities() {
+  for (const player of game.players.values()) {
+    runtime.registerEntity(player.id, 'player', {
+      x: player.x,
+      y: player.y,
+      z: player.z,
+      health: player.health,
+      energy: player.energy,
+      stamina: player.stamina,
+      score: player.score,
+      state: player.state
+    });
   }
 
   for (const enemy of game.enemies.values()) {
-    if (!quantum.getProcessor(enemy.id)) {
-      const processor = quantum.registerProcessor(enemy.id);
-      processor.state = new MorphVector(
-        enemy.x, enemy.y, enemy.z, 0,
-        enemy.health / 100, enemy.speed, 0, 0
-      );
-      processor.velocity = new MorphVector(0, 0, 0, 0, 0, 0, 0, 0);
-    }
+    runtime.registerEntity(enemy.id, 'enemy', {
+      x: enemy.x,
+      y: enemy.y,
+      z: enemy.z,
+      health: enemy.health,
+      speed: enemy.speed,
+      state: enemy.state
+    });
   }
 }
 
-function syncQuantumStateWithGame() {
+function syncRuntimeFromGame() {
   for (const player of game.players.values()) {
-    const processor = quantum.getProcessor(player.id);
+    const processor = runtime.quantum.getProcessor(player.id);
     if (!processor) continue;
 
     processor.state = new MorphVector(
       player.x,
       player.y,
       player.z,
+      0,
       player.health,
-      player.armor,
       player.energy,
       player.stamina,
       player.score
@@ -63,18 +65,18 @@ function syncQuantumStateWithGame() {
   }
 
   for (const enemy of game.enemies.values()) {
-    const processor = quantum.getProcessor(enemy.id);
+    const processor = runtime.quantum.getProcessor(enemy.id);
     if (!processor) continue;
 
     processor.state = new MorphVector(
       enemy.x,
       enemy.y,
       enemy.z,
+      0,
       enemy.health,
       enemy.speed,
-      0,
-      0,
-      enemy.state === 'TRACK' ? 1 : 0
+      enemy.state === 'TRACK' ? 1 : 0,
+      0
     );
   }
 }
@@ -143,8 +145,10 @@ function status() {
   return {
     service: 'CyberGame',
     status: 'ONLINE',
-    runtime: hfbt.getStatus(),
-    quantum: quantum.getStatus(),
+    runtime: {
+      hfbt: hfbt.getStatus(),
+      quantum: runtime.getStatus(),
+    },
     server: {
       host: HOST,
       port: PORT,
@@ -166,7 +170,7 @@ function status() {
 function createPlayer() {
   const id = crypto.randomUUID();
   const player = game.addPlayer(id);
-  registerEntityProcessors();
+  registerRuntimeEntities();
   return { id, player };
 }
 
@@ -205,8 +209,8 @@ const server = http.createServer(async (req, res) => {
 
     if (req.method === 'GET' && url.pathname === '/runtime') {
       sendJson(res, 200, {
-        ...hfbt.getStatus(),
-        quantum: quantum.getStatus()
+        hfbt: hfbt.getStatus(),
+        quantum: runtime.getStatus()
       });
       return;
     }
@@ -247,14 +251,13 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/input') {
       const body = await parseBody(req);
       const result = game.processInput(String(body.playerId || ''), body);
-
       if (!result.ok) {
         sendJson(res, 400, result);
         return;
       }
 
+      syncRuntimeFromGame();
       game.event('INPUT', { playerId: body.playerId, action: body.action });
-      syncQuantumStateWithGame();
       sendJson(res, 200, result);
       return;
     }
@@ -262,7 +265,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === 'POST' && url.pathname === '/command') {
       const body = await parseBody(req);
       const result = game.command(String(body.playerId || ''), body.command);
-      syncQuantumStateWithGame();
+      syncRuntimeFromGame();
       sendJson(res, result.ok === false ? 400 : 200, result);
       return;
     }
@@ -287,37 +290,32 @@ const server = http.createServer(async (req, res) => {
 });
 
 setInterval(() => {
-  registerEntityProcessors();
-  syncQuantumStateWithGame();
-
-  const before = Date.now();
-  quantum.tick(16.6667);
-  const after = Date.now();
-
-  game.tickUpdate();
-  const frameState = game.snapshot();
-  const quantizedFrame = {
-    ...frameState,
-    quantum: quantum.getStatus(),
-    quantumProcessors: Array.from(quantum.processors.values()).map(p => p.getSnapshot())
+  registerRuntimeEntities();
+  syncRuntimeFromGame();
+  const frame = runtime.tick(16.6667);
+  const payload = {
+    type: 'FRAME',
+    frame,
+    runtime: runtime.getStatus(),
+    quantum: runtime.quantum.getStatus()
   };
 
-  const runtimeFrame = hfbt.buildFrame(quantizedFrame);
-  broadcastMessage({ type: 'FRAME', frame: runtimeFrame, tickMs: after - before });
+  broadcastMessage(payload);
 }, 1000 / 30);
 
 server.listen(PORT, HOST, () => {
   console.log('');
   console.log('==============================================================');
-  console.log(' CYBERGAME SERVER ONLINE');
+  console.log(' CYBERGAME RUNTIME ONLINE');
   console.log('==============================================================');
   console.log(` LOCAL: http://127.0.0.1:${PORT}`);
   console.log(` HEALTH: http://127.0.0.1:${PORT}/health`);
   console.log(` STATUS: http://127.0.0.1:${PORT}/status`);
+  console.log(` RUNTIME: http://127.0.0.1:${PORT}/runtime`);
   console.log(` STREAM: http://127.0.0.1:${PORT}/stream`);
-  console.log(` RUNTIME: ${hfbt.protocol} / ${hfbt.transport}`);
+  console.log(` PROTOCOL: ${hfbt.protocol}`);
+  console.log(` TRANSPORT: ${hfbt.transport}`);
   console.log(` RAYS: ${hfbt.rays}`);
-  console.log(` QUANTUM: ${quantum.getStatus().tickRateHz} Hz / ${quantum.getStatus().tickMs} ms`);
   console.log('==============================================================');
 });
 
