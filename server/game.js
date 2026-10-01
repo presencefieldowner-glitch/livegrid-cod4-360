@@ -34,7 +34,15 @@ class GameState {
       y: 0,
       z: 0,
       progress: 0,
-      secured: false
+      secured: false,
+      round: 1,
+      wave: 1
+    };
+
+    this.match = {
+      startedAt: Date.now(),
+      roundTime: 0,
+      phase: 'LIVE'
     };
 
     this.events = [];
@@ -72,7 +80,9 @@ class GameState {
       score: 0,
       state: 'READY',
       connectedAt: Date.now(),
-      fireCooldown: 0
+      fireCooldown: 0,
+      reloadCooldown: 0,
+      killFeed: []
     };
 
     this.players.set(id, player);
@@ -103,9 +113,8 @@ class GameState {
     const action = String(input.action || '').toLowerCase();
     const speed = Number.isFinite(input.speed) ? input.speed : 1;
 
-    if (player.fireCooldown > 0) {
-      player.fireCooldown = Math.max(0, player.fireCooldown - 1);
-    }
+    if (player.fireCooldown > 0) player.fireCooldown = Math.max(0, player.fireCooldown - 1);
+    if (player.reloadCooldown > 0) player.reloadCooldown = Math.max(0, player.reloadCooldown - 1);
 
     switch (action) {
       case 'forward':
@@ -147,32 +156,37 @@ class GameState {
           return { ok: true, player: clone(player), fired: false, cooldown: player.fireCooldown };
         }
 
-        if (player.ammo > 0) {
-          player.ammo -= 1;
-          player.fireCooldown = 6;
-          const aimX = player.x + Math.sin(player.yaw) * 8;
-          const aimY = player.y + Math.sin(player.pitch) * 4;
-          const aimZ = player.z + Math.cos(player.yaw) * 8;
-          this.projectiles.push({
-            id: crypto.randomUUID(),
-            owner: playerId,
-            x: player.x,
-            y: player.y + 1.2,
-            z: player.z,
-            dx: aimX - player.x,
-            dy: aimY - player.y,
-            dz: aimZ - player.z,
-            ttl: 120,
-            speed: 0.8,
-            damage: 22
-          });
-          this.event('PLAYER_FIRE', { playerId, weapon: player.weapon, ammo: player.ammo });
-        } else {
-          this.event('PLAYER_RELOAD', { playerId });
+        if (player.ammo <= 0) {
+          return this.processInput(playerId, { action: 'reload' });
         }
+
+        player.ammo -= 1;
+        player.fireCooldown = 6;
+        const aimX = player.x + Math.sin(player.yaw) * 8;
+        const aimY = player.y + Math.sin(player.pitch) * 4;
+        const aimZ = player.z + Math.cos(player.yaw) * 8;
+        this.projectiles.push({
+          id: crypto.randomUUID(),
+          owner: playerId,
+          x: player.x,
+          y: player.y + 1.2,
+          z: player.z,
+          dx: aimX - player.x,
+          dy: aimY - player.y,
+          dz: aimZ - player.z,
+          ttl: 120,
+          speed: 1.0,
+          damage: 22
+        });
+        this.event('PLAYER_FIRE', { playerId, weapon: player.weapon, ammo: player.ammo });
         break;
       case 'reload':
+        if (player.reloadCooldown > 0 || player.ammo >= 30) {
+          return { ok: true, player: clone(player), reloaded: false };
+        }
+
         if (player.reserve > 0) {
+          player.reloadCooldown = 20;
           const needed = 30 - player.ammo;
           const loaded = Math.min(needed, player.reserve);
           player.ammo += loaded;
@@ -220,11 +234,11 @@ class GameState {
   tickUpdate() {
     this.tick += 1;
     this.frame += 1;
+    this.match.roundTime += 1;
 
     for (const player of this.players.values()) {
-      if (player.fireCooldown > 0) {
-        player.fireCooldown = Math.max(0, player.fireCooldown - 1);
-      }
+      if (player.fireCooldown > 0) player.fireCooldown = Math.max(0, player.fireCooldown - 1);
+      if (player.reloadCooldown > 0) player.reloadCooldown = Math.max(0, player.reloadCooldown - 1);
     }
 
     for (const enemy of this.enemies.values()) {
@@ -294,18 +308,23 @@ class GameState {
 
     this.projectiles = this.projectiles.filter(p => p.ttl > 0);
 
-    for (const player of this.players.values()) {
-      if (player.health <= 0) {
-        player.health = 100;
-      }
-    }
-
-    if (this.enemies.size === 0) {
+    if (this.players.size > 0 && this.enemies.size === 0) {
       this.objective.progress = Math.min(100, this.objective.progress + 0.75);
       if (this.objective.progress >= 100) {
         this.objective.secured = true;
-        this.event('OBJECTIVE_SECURED', { objectiveId: this.objective.id });
+        this.objective.wave += 1;
+        this.event('OBJECTIVE_SECURED', { objectiveId: this.objective.id, wave: this.objective.wave });
       }
+    }
+
+    if (this.objective.secured && this.objective.progress >= 100) {
+      this.objective.progress = 0;
+      this.objective.secured = false;
+      this.match.phase = 'WAVE_CLEAR';
+    }
+
+    if (this.match.roundTime > 900) {
+      this.match.phase = 'MATCH_IDLE';
     }
   }
 
@@ -319,7 +338,8 @@ class GameState {
       players: Array.from(this.players.values()).map(clone),
       enemies: Array.from(this.enemies.values()).map(clone),
       projectiles: clone(this.projectiles),
-      events: this.events.slice(-20)
+      events: this.events.slice(-20),
+      match: clone(this.match)
     };
   }
 }
