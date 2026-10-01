@@ -4,6 +4,7 @@ const ctx = canvas.getContext('2d');
 let playerId = null;
 let liveFrame = null;
 let currentPlayer = null;
+let pointer = { x: canvas.width / 2, y: canvas.height / 2 };
 
 const ui = {
   runtime: document.getElementById('runtime'),
@@ -40,7 +41,7 @@ async function sendAction(action) {
   const response = await fetch('/input', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ playerId, action })
+    body: JSON.stringify({ playerId, action, speed: 1.2 })
   });
 
   const data = await response.json();
@@ -82,7 +83,7 @@ function drawArena() {
     ctx.stroke();
   }
 
-  const objective = liveFrame?.state?.objective;
+  const objective = liveFrame?.objective;
   if (objective) {
     const px = w / 2 + (objective.x * 9);
     const py = h / 2 + (objective.z * 9);
@@ -101,29 +102,42 @@ function drawArena() {
     ctx.fill();
   }
 
-  if (liveFrame?.state?.enemies) {
-    for (const enemy of liveFrame.state.enemies) {
+  if (liveFrame?.enemies) {
+    for (const enemy of liveFrame.enemies) {
       const ex = w / 2 + (enemy.x * 9);
       const ey = h / 2 + (enemy.z * 9);
       ctx.fillStyle = '#ff5ab3';
       ctx.beginPath();
       ctx.arc(ex, ey, 7, 0, Math.PI * 2);
       ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(ex - 8, ey - 12, 16, 3);
+      ctx.fillStyle = '#ff0a6c';
+      ctx.fillRect(ex - 8, ey - 12, Math.max(0, (enemy.health / 100) * 16), 3);
     }
   }
 
-  if (liveFrame?.state?.projectiles) {
-    for (const projectile of liveFrame.state.projectiles) {
+  if (liveFrame?.projectiles) {
+    for (const projectile of liveFrame.projectiles) {
       const px = w / 2 + (projectile.x * 9);
       const py = h / 2 + (projectile.z * 9);
       ctx.fillStyle = '#ffd76a';
       ctx.fillRect(px - 2, py - 2, 4, 4);
     }
   }
+
+  ctx.strokeStyle = '#dff8ff';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(pointer.x - 8, pointer.y);
+  ctx.lineTo(pointer.x + 8, pointer.y);
+  ctx.moveTo(pointer.x, pointer.y - 8);
+  ctx.lineTo(pointer.x, pointer.y + 8);
+  ctx.stroke();
 }
 
 function updateHudFromFrame(frame) {
-  liveFrame = frame.state;
+  liveFrame = frame.state || frame;
   ui.runtime.textContent = `RUNTIME: ${frame.protocol} / ${frame.rays} RAYS`;
   ui.frame.textContent = `FRAME: ${frame.frame}`;
   if (liveFrame?.objective) {
@@ -158,6 +172,14 @@ function wireControls() {
     if (key === 'shift') sendAction('dash');
     if (key === 'f') sendAction('ability');
   });
+
+  canvas.addEventListener('pointermove', (event) => {
+    const rect = canvas.getBoundingClientRect();
+    pointer.x = ((event.clientX - rect.left) / rect.width) * canvas.width;
+    pointer.y = ((event.clientY - rect.top) / rect.height) * canvas.height;
+  });
+
+  canvas.addEventListener('click', () => sendAction('fire'));
 }
 
 function connectStream() {

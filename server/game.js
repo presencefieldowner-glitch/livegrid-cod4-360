@@ -21,9 +21,9 @@ class GameState {
 
     this.players = new Map();
     this.enemies = new Map([
-      ['drone-1', { id: 'drone-1', name: 'Warden', type: 'drone', x: 18, y: 0, z: 10, health: 100, speed: 0.8, state: 'PATROL' }],
-      ['drone-2', { id: 'drone-2', name: 'Stygian', type: 'drone', x: -20, y: 0, z: -12, health: 100, speed: 0.7, state: 'TRACK' }],
-      ['drone-3', { id: 'drone-3', name: 'Null', type: 'drone', x: 8, y: 0, z: -23, health: 100, speed: 0.9, state: 'PATROL' }]
+      ['drone-1', { id: 'drone-1', name: 'Warden', type: 'drone', x: 18, y: 0, z: 10, health: 100, speed: 0.8, state: 'PATROL', fireCooldown: 0 }],
+      ['drone-2', { id: 'drone-2', name: 'Stygian', type: 'drone', x: -20, y: 0, z: -12, health: 100, speed: 0.7, state: 'TRACK', fireCooldown: 0 }],
+      ['drone-3', { id: 'drone-3', name: 'Null', type: 'drone', x: 8, y: 0, z: -23, health: 100, speed: 0.9, state: 'PATROL', fireCooldown: 0 }]
     ]);
 
     this.projectiles = [];
@@ -71,7 +71,8 @@ class GameState {
       reserve: 120,
       score: 0,
       state: 'READY',
-      connectedAt: Date.now()
+      connectedAt: Date.now(),
+      fireCooldown: 0
     };
 
     this.players.set(id, player);
@@ -101,6 +102,10 @@ class GameState {
 
     const action = String(input.action || '').toLowerCase();
     const speed = Number.isFinite(input.speed) ? input.speed : 1;
+
+    if (player.fireCooldown > 0) {
+      player.fireCooldown = Math.max(0, player.fireCooldown - 1);
+    }
 
     switch (action) {
       case 'forward':
@@ -138,8 +143,13 @@ class GameState {
         this.event('PLAYER_DASH', { playerId, stamina: player.stamina });
         break;
       case 'fire':
+        if (player.fireCooldown > 0) {
+          return { ok: true, player: clone(player), fired: false, cooldown: player.fireCooldown };
+        }
+
         if (player.ammo > 0) {
           player.ammo -= 1;
+          player.fireCooldown = 6;
           const aimX = player.x + Math.sin(player.yaw) * 8;
           const aimY = player.y + Math.sin(player.pitch) * 4;
           const aimZ = player.z + Math.cos(player.yaw) * 8;
@@ -153,7 +163,8 @@ class GameState {
             dy: aimY - player.y,
             dz: aimZ - player.z,
             ttl: 120,
-            speed: 0.8
+            speed: 0.8,
+            damage: 22
           });
           this.event('PLAYER_FIRE', { playerId, weapon: player.weapon, ammo: player.ammo });
         } else {
@@ -210,7 +221,15 @@ class GameState {
     this.tick += 1;
     this.frame += 1;
 
+    for (const player of this.players.values()) {
+      if (player.fireCooldown > 0) {
+        player.fireCooldown = Math.max(0, player.fireCooldown - 1);
+      }
+    }
+
     for (const enemy of this.enemies.values()) {
+      enemy.fireCooldown = Math.max(0, (enemy.fireCooldown || 0) - 1);
+
       const nearest = Array.from(this.players.values()).sort((a, b) => {
         const da = Math.hypot(enemy.x - a.x, enemy.z - a.z);
         const db = Math.hypot(enemy.x - b.x, enemy.z - b.z);
@@ -220,12 +239,31 @@ class GameState {
       if (nearest) {
         const dx = nearest.x - enemy.x;
         const dz = nearest.z - enemy.z;
-        enemy.x += Math.sign(dx) * enemy.speed * 0.35;
-        enemy.z += Math.sign(dz) * enemy.speed * 0.35;
+        const dist = Math.hypot(dx, dz);
+
+        if (dist > 0.5) {
+          enemy.x += Math.sign(dx) * enemy.speed * 0.35;
+          enemy.z += Math.sign(dz) * enemy.speed * 0.35;
+        }
+
+        if (dist < 3.5 && enemy.fireCooldown === 0) {
+          nearest.health = Math.max(0, nearest.health - 8);
+          enemy.fireCooldown = 30;
+          this.event('ENEMY_HIT', { enemyId: enemy.id, playerId: nearest.id, damage: 8 });
+        }
       }
 
       enemy.x = this.clamp(enemy.x, this.world.bounds.minX, this.world.bounds.maxX);
       enemy.z = this.clamp(enemy.z, this.world.bounds.minZ, this.world.bounds.maxZ);
+    }
+
+    for (const player of this.players.values()) {
+      if (player.health <= 0) {
+        player.health = 100;
+        player.x = 0;
+        player.z = 26;
+        this.event('PLAYER_RESPAWN', { playerId: player.id });
+      }
     }
 
     for (const projectile of this.projectiles) {
@@ -241,7 +279,7 @@ class GameState {
       for (const enemy of this.enemies.values()) {
         const distance = Math.hypot(projectile.x - enemy.x, projectile.z - enemy.z);
         if (distance < 2.2) {
-          enemy.health -= 22;
+          enemy.health -= projectile.damage || 22;
           if (enemy.health <= 0) {
             const shooter = this.players.get(projectile.owner);
             if (shooter) shooter.score += 100;
@@ -255,6 +293,12 @@ class GameState {
     }
 
     this.projectiles = this.projectiles.filter(p => p.ttl > 0);
+
+    for (const player of this.players.values()) {
+      if (player.health <= 0) {
+        player.health = 100;
+      }
+    }
 
     if (this.enemies.size === 0) {
       this.objective.progress = Math.min(100, this.objective.progress + 0.75);
