@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CyberGame // HFBT Arena</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <header class="hud-top">
+        <div class="brand">CYBERGAME // HFBT ARENA</div>
+        <div class="status-box">
+          <span id="runtime">RUNTIME: CONNECTING</span>
+          <span id="frame">FRAME: 0</span>
+        </div>
+      </header>
+
+      <main class="battlefield-wrap">
+        <canvas id="battlefield" width="960" height="540"></canvas>
+
+        <aside class="sidebar">
+          <section class="panel stats-panel">
+            <h3>OPERATOR</h3>
+            <div id="player-summary">PLAYER: NONE</div>
+            <div>HEALTH: <span id="health">100</span></div>
+            <div>ARMOR: <span id="armor">50</span></div>
+            <div>ENERGY: <span id="energy">100</span></div>
+            <div>STAMINA: <span id="stamina">100</span></div>
+            <div>SCORE: <span id="score">0</span></div>
+          </section>
+
+          <section class="panel objective-panel">
+            <h3>OBJECTIVE</h3>
+            <div id="objective">DATA CORE: 0%</div>
+          </section>
+
+          <section class="panel controls-panel">
+            <h3>CONTROLS</h3>
+            <div class="button-grid">
+              <button data-action="forward">FORWARD</button>
+              <button data-action="back">BACK</button>
+              <button data-action="strafe_left">STRAFE L</button>
+              <button data-action="strafe_right">STRAFE R</button>
+              <button data-action="turn_left">TURN L</button>
+              <button data-action="turn_right">TURN R</button>
+              <button data-action="fire">FIRE</button>
+              <button data-action="reload">RELOAD</button>
+              <button data-action="dash">DASH</button>
+              <button data-action="ability">OVERCLOCK</button>
+            </div>
+          </section>
+        </aside>
+      </main>
+
+      <footer class="bottom-bar">
+        <div id="log" class="log-box">booting :: waiting for player connection</div>
+      </footer>
+    </div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
