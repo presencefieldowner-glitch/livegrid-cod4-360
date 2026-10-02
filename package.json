@@ -1,11 +1,23 @@
 {
   "name": "cybergame-hfbt-server",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
-  "description": "Cyber FPS server and client built around HolographicFramesByteTransport",
-  "main": "server/server.js",
+  "description": "Cyberpunk FPS server and browser client powered by RCOREX-HF/1.1 and HolographicFramesByteTransport",
+  "main": "server/server.cjs",
+  "type": "commonjs",
   "scripts": {
-    "start": "node server/server.js",
-    "dev": "node --watch server/server.js"
+    "start": "node server/server.cjs",
+    "dev": "node --watch server/server.cjs",
+    "check": "node --check server/server.cjs",
+    "health": "curl -fsS http://127.0.0.1:8787/health",
+    "status": "curl -fsS http://127.0.0.1:8787/status",
+    "runtime": "curl -fsS http://127.0.0.1:8787/runtime",
+    "game": "curl -fsS http://127.0.0.1:8787/game"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }
