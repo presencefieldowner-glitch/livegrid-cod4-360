@@ -1,63 +1,2246 @@
 <!doctype html>
+
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CyberGame // HFBT Arena</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
-    <div class="shell">
-      <header class="hud-top">
-        <div class="brand">CYBERGAME // HFBT ARENA</div>
-        <div class="status-box">
-          <span id="runtime">RUNTIME: CONNECTING</span>
-          <span id="frame">FRAME: 0</span>
-        </div>
-      </header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />  <title>HFBT // R-CoreX Holographic Projection Runtime</title>  <meta name="application-name" content="HFBT R-CoreX Arena Runtime" />
+  <meta name="runtime-protocol" content="RCOREX-HF/1.1" />
+  <meta name="runtime-mode" content="VIRTUAL_SIMULATION" />  <link rel="stylesheet" href="/styles.css" />
+</head><body><div
+  id="hfb-runtime"
+  class="hfb-runtime"
+  data-protocol="RCOREX-HF/1.1"
+  data-runtime="R-COREX"
+  data-mode="VIRTUAL_SIMULATION"
+  data-physical-emitter="FALSE"
+>  <!-- =========================================================
+       MASTER HOLOGRAPHIC FIELD
+       ========================================================= -->  <div id="master-field" class="master-field"><!-- volumetric atmosphere -->
+<div class="field-atmosphere"></div>
+<div class="field-stars"></div>
+<div class="field-particles"></div>
+<div class="field-grid"></div>
+<div class="field-grid-secondary"></div>
+<div class="field-scanlines"></div>
+<div class="field-vignette"></div>
 
-      <main class="battlefield-wrap">
-        <canvas id="battlefield" width="960" height="540"></canvas>
+<!-- projected spatial planes -->
+<div id="projection-volume" class="projection-volume">
 
-        <aside class="sidebar">
-          <section class="panel stats-panel">
-            <h3>OPERATOR</h3>
-            <div id="player-summary">PLAYER: NONE</div>
-            <div>HEALTH: <span id="health">100</span></div>
-            <div>ARMOR: <span id="armor">50</span></div>
-            <div>ENERGY: <span id="energy">100</span></div>
-            <div>STAMINA: <span id="stamina">100</span></div>
-            <div>SCORE: <span id="score">0</span></div>
-          </section>
+  <div class="projection-plane plane-front"></div>
+  <div class="projection-plane plane-mid"></div>
+  <div class="projection-plane plane-back"></div>
 
-          <section class="panel objective-panel">
-            <h3>OBJECTIVE</h3>
-            <div id="objective">DATA CORE: 0%</div>
-          </section>
+  <div class="projection-axis axis-x"></div>
+  <div class="projection-axis axis-y"></div>
+  <div class="projection-axis axis-z"></div>
 
-          <section class="panel controls-panel">
-            <h3>CONTROLS</h3>
-            <div class="button-grid">
-              <button data-action="forward">FORWARD</button>
-              <button data-action="back">BACK</button>
-              <button data-action="strafe_left">STRAFE L</button>
-              <button data-action="strafe_right">STRAFE R</button>
-              <button data-action="turn_left">TURN L</button>
-              <button data-action="turn_right">TURN R</button>
-              <button data-action="fire">FIRE</button>
-              <button data-action="reload">RELOAD</button>
-              <button data-action="dash">DASH</button>
-              <button data-action="ability">OVERCLOCK</button>
-            </div>
-          </section>
-        </aside>
-      </main>
+</div>
 
-      <footer class="bottom-bar">
-        <div id="log" class="log-box">booting :: waiting for player connection</div>
-      </footer>
+
+<!-- =======================================================
+     TOP COMMAND BAR
+     ======================================================= -->
+
+<header id="command-header" class="command-header">
+
+  <section class="identity-cluster">
+
+    <div class="system-mark">
+      <span class="mark-core"></span>
+      <span class="mark-ring ring-a"></span>
+      <span class="mark-ring ring-b"></span>
+      <span class="mark-ring ring-c"></span>
     </div>
 
-    <script src="/app.js"></script>
-  </body>
+    <div>
+
+      <div class="system-title">
+        HFBT
+      </div>
+
+      <div class="system-subtitle">
+        HOLOGRAPHIC FRAMES BYTE TRANSPORT
+      </div>
+
+      <div class="system-owner">
+        R-COREX // PROJECTED INTERACTIVE RUNTIME
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <section class="global-runtime-status">
+
+    <div class="runtime-status-cell">
+      <span class="status-label">PROTOCOL</span>
+      <span id="runtime-protocol">RCOREX-HF/1.1</span>
+    </div>
+
+    <div class="runtime-status-cell">
+      <span class="status-label">RUNTIME</span>
+      <span id="runtime">CONNECTING</span>
+    </div>
+
+    <div class="runtime-status-cell">
+      <span class="status-label">FIELD</span>
+      <span id="field-status">BOOT</span>
+    </div>
+
+    <div class="runtime-status-cell">
+      <span class="status-label">EMITTER</span>
+      <span id="emitter-status">VIRTUAL</span>
+    </div>
+
+    <div class="runtime-status-cell">
+      <span class="status-label">FRAME</span>
+      <span id="frame">0</span>
+    </div>
+
+  </section>
+
+</header>
+
+
+<!-- =======================================================
+     SYSTEM NAVIGATION
+     ======================================================= -->
+
+<nav id="runtime-navigation" class="runtime-navigation">
+
+  <button data-view="arena">ARENA</button>
+  <button data-view="projection">PROJECTION</button>
+  <button data-view="rays">RAY FIELD</button>
+  <button data-view="audio">AUDIO</button>
+  <button data-view="telemetry">TELEMETRY</button>
+  <button data-view="runtime">RUNTIME</button>
+  <button data-view="events">EVENTS</button>
+  <button data-view="system">SYSTEM</button>
+
+</nav>
+
+
+<!-- =======================================================
+     MAIN RUNTIME SPACE
+     ======================================================= -->
+
+<main id="runtime-space" class="runtime-space">
+
+
+  <!-- =====================================================
+       LEFT SYSTEM COLUMN
+       ===================================================== -->
+
+  <aside id="left-console" class="runtime-column left-console">
+
+
+    <!-- OPERATOR -->
+    <section class="runtime-panel operator-panel">
+
+      <div class="panel-title">
+        <span>OPERATOR</span>
+        <span class="panel-index">001</span>
+      </div>
+
+      <div class="operator-identity">
+
+        <div class="operator-avatar">
+          <div class="avatar-core"></div>
+          <div class="avatar-ring"></div>
+        </div>
+
+        <div>
+
+          <div id="player-summary">
+            PLAYER: NONE
+          </div>
+
+          <div class="identity-state">
+            PRESENCE: WAITING
+          </div>
+
+          <div class="identity-state">
+            CONTROL: LOCAL
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <div class="stat-stack">
+
+        <div class="stat">
+          <span>HEALTH</span>
+          <strong id="health">100</strong>
+        </div>
+
+        <div class="stat">
+          <span>ARMOR</span>
+          <strong id="armor">50</strong>
+        </div>
+
+        <div class="stat">
+          <span>ENERGY</span>
+          <strong id="energy">100</strong>
+        </div>
+
+        <div class="stat">
+          <span>STAMINA</span>
+          <strong id="stamina">100</strong>
+        </div>
+
+        <div class="stat">
+          <span>SCORE</span>
+          <strong id="score">0</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- OBJECTIVE -->
+    <section class="runtime-panel objective-panel">
+
+      <div class="panel-title">
+        <span>OBJECTIVE MATRIX</span>
+        <span class="panel-index">002</span>
+      </div>
+
+      <div id="objective">
+        DATA CORE: 0%
+      </div>
+
+      <div class="progress-frame">
+
+        <div
+          id="objective-progress"
+          class="progress-value"
+          style="width:0%"
+        ></div>
+
+      </div>
+
+      <div class="objective-state">
+        TARGET STATE: UNRESOLVED
+      </div>
+
+    </section>
+
+
+    <!-- SPATIAL POSITION -->
+    <section class="runtime-panel spatial-panel">
+
+      <div class="panel-title">
+        <span>SPATIAL VECTOR</span>
+        <span class="panel-index">003</span>
+      </div>
+
+      <div class="vector-grid">
+
+        <div>
+          <span>X</span>
+          <strong id="vector-x">0000.000</strong>
+        </div>
+
+        <div>
+          <span>Y</span>
+          <strong id="vector-y">0000.000</strong>
+        </div>
+
+        <div>
+          <span>Z</span>
+          <strong id="vector-z">0000.000</strong>
+        </div>
+
+        <div>
+          <span>RX</span>
+          <strong id="vector-rx">000.000</strong>
+        </div>
+
+        <div>
+          <span>RY</span>
+          <strong id="vector-ry">000.000</strong>
+        </div>
+
+        <div>
+          <span>RZ</span>
+          <strong id="vector-rz">000.000</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- POWER / RESONANCE -->
+    <section class="runtime-panel resonance-panel">
+
+      <div class="panel-title">
+        <span>RESONANCE</span>
+        <span class="panel-index">004</span>
+      </div>
+
+      <div class="resonance-readout">
+
+        <div class="resonance-value">
+          <span id="resonance-value">0.000000</span>
+        </div>
+
+        <div class="resonance-label">
+          FIELD RESONANCE
+        </div>
+
+      </div>
+
+      <div class="meter-row">
+        <span>COHERENCE</span>
+        <div class="meter">
+          <div id="coherence-meter" class="meter-fill"></div>
+        </div>
+        <span id="coherence-value">0%</span>
+      </div>
+
+      <div class="meter-row">
+        <span>FIELD</span>
+        <div class="meter">
+          <div id="field-meter" class="meter-fill"></div>
+        </div>
+        <span id="field-value">0%</span>
+      </div>
+
+    </section>
+
+
+    <!-- HARDWARE BOUNDARY -->
+    <section class="runtime-panel hardware-panel">
+
+      <div class="panel-title">
+        <span>HARDWARE BOUNDARY</span>
+        <span class="panel-index">005</span>
+      </div>
+
+      <div class="hardware-row">
+        <span>PHYSICAL EMITTER</span>
+        <strong id="physical-emitter">FALSE</strong>
+      </div>
+
+      <div class="hardware-row">
+        <span>OPTICAL OUTPUT</span>
+        <strong id="optical-output">DISABLED</strong>
+      </div>
+
+      <div class="hardware-row">
+        <span>LASER CONTROL</span>
+        <strong id="laser-control">DISABLED</strong>
+      </div>
+
+      <div class="hardware-row">
+        <span>MODE</span>
+        <strong id="runtime-mode">
+          VIRTUAL_SIMULATION
+        </strong>
+      </div>
+
+    </section>
+
+  </aside>
+
+
+  <!-- =====================================================
+       CENTRAL HOLOGRAPHIC ARENA
+       ===================================================== -->
+
+  <section id="central-projection" class="central-projection">
+
+
+    <!-- projection header -->
+
+    <div class="projection-header">
+
+      <div>
+
+        <div class="projection-title">
+          HOLOGRAPHIC PROJECTION CHAMBER
+        </div>
+
+        <div class="projection-subtitle">
+          LIVE MULTI-LAYER FRAME FIELD
+        </div>
+
+      </div>
+
+      <div class="projection-indicators">
+
+        <span id="projection-state">
+          PROJECTION ACTIVE
+        </span>
+
+        <span id="frame-rate">
+          0 FPS
+        </span>
+
+        <span id="latency">
+          0 MS
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         MASTER PROJECTION SURFACE
+         =================================================== -->
+
+    <div
+      id="holographic-chamber"
+      class="holographic-chamber"
+    >
+
+      <!-- volumetric depth -->
+      <div class="depth-field depth-1"></div>
+      <div class="depth-field depth-2"></div>
+      <div class="depth-field depth-3"></div>
+
+      <!-- scan volume -->
+      <div class="vertical-scan"></div>
+      <div class="horizontal-scan"></div>
+
+
+      <!-- projection origin -->
+
+      <div
+        id="projection-source"
+        class="projection-source"
+      >
+
+        <div class="source-core"></div>
+
+        <div class="source-ring source-ring-a"></div>
+        <div class="source-ring source-ring-b"></div>
+        <div class="source-ring source-ring-c"></div>
+
+        <div class="source-beam beam-a"></div>
+        <div class="source-beam beam-b"></div>
+        <div class="source-beam beam-c"></div>
+
+      </div>
+
+
+      <!-- =================================================
+           CANVAS ENGINE
+           ================================================= -->
+
+      <div
+        id="battlefield-shell"
+        class="battlefield-shell"
+      >
+
+        <div class="battlefield-topline">
+          HFBT // FRAME PROJECTION
+        </div>
+
+        <canvas
+          id="battlefield"
+          width="1280"
+          height="720"
+        ></canvas>
+
+
+        <!-- projected UI -->
+        <div class="projected-interface">
+
+          <div class="projection-corner corner-tl"></div>
+          <div class="projection-corner corner-tr"></div>
+          <div class="projection-corner corner-bl"></div>
+          <div class="projection-corner corner-br"></div>
+
+          <div
+            id="target-reticle"
+            class="target-reticle"
+          >
+            <span class="reticle-horizontal"></span>
+            <span class="reticle-vertical"></span>
+            <span class="reticle-ring"></span>
+            <span class="reticle-center"></span>
+          </div>
+
+
+          <div
+            id="projection-coordinates"
+            class="projection-coordinates"
+          >
+
+            X:
+            <span id="hud-x">0000</span>
+
+            Y:
+            <span id="hud-y">0000</span>
+
+            Z:
+            <span id="hud-z">0000</span>
+
+          </div>
+
+
+          <div
+            id="target-data"
+            class="target-data"
+          >
+
+            <div>TARGET</div>
+            <strong id="target-name">
+              NO TARGET
+            </strong>
+
+            <span id="target-distance">
+              DISTANCE: ----
+            </span>
+
+          </div>
+
+
+          <div
+            id="weapon-state"
+            class="weapon-state"
+          >
+            SYSTEM READY
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           RAY FIELD
+           ================================================= -->
+
+      <div
+        id="ray-field"
+        class="ray-field"
+      >
+
+        <div class="ray ray-01"></div>
+        <div class="ray ray-02"></div>
+        <div class="ray ray-03"></div>
+        <div class="ray ray-04"></div>
+        <div class="ray ray-05"></div>
+        <div class="ray ray-06"></div>
+        <div class="ray ray-07"></div>
+        <div class="ray ray-08"></div>
+        <div class="ray ray-09"></div>
+        <div class="ray ray-10"></div>
+        <div class="ray ray-11"></div>
+        <div class="ray ray-12"></div>
+
+      </div>
+
+
+      <!-- =================================================
+           PARTICLE FIELD
+           ================================================= -->
+
+      <div
+        id="particle-field"
+        class="particle-field"
+      ></div>
+
+
+      <!-- =================================================
+           PROJECTED CODE
+           ================================================= -->
+
+      <div
+        id="projected-code"
+        class="projected-code"
+      >
+
+        <div class="code-title">
+          PROJECTED EXECUTION FIELD
+        </div>
+
+        <pre id="code-stream">
+
+HFBT::BOOT
+RCOREX::FIELD_INIT
+RAY_ENGINE::INITIALIZING
+MORPH_MATRIX::INITIALIZING
+FRAME_TRANSPORT::WAITING
+AUDIO_OVERLAY::STANDBY
+</pre>
+
+      </div>
+
+
+      <!-- =================================================
+           FIELD LABELS
+           ================================================= -->
+
+      <div class="field-label label-top">
+        R-COREX
+      </div>
+
+      <div class="field-label label-left">
+        X
+      </div>
+
+      <div class="field-label label-right">
+        Z
+      </div>
+
+      <div class="field-label label-bottom">
+        Y
+      </div>
+
+    </div>
+
+
+    <!-- ===================================================
+         FRAME PIPELINE
+         =================================================== -->
+
+    <section class="frame-pipeline">
+
+      <div class="pipeline-title">
+        FRAME PROCESSING PIPELINE
+      </div>
+
+      <div class="pipeline">
+
+        <div class="pipeline-node active">
+          <span>01</span>
+          <strong>INPUT</strong>
+        </div>
+
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node">
+          <span>02</span>
+          <strong>STATE</strong>
+        </div>
+
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node">
+          <span>03</span>
+          <strong>VECTOR</strong>
+        </div>
+
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node">
+          <span>04</span>
+          <strong>RAY</strong>
+        </div>
+
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node">
+          <span>05</span>
+          <strong>FRAME</strong>
+        </div>
+
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node">
+          <span>06</span>
+          <strong>PROJECT</strong>
+        </div>
+
+        <div class="pipeline-connector"></div>
+
+        <div class="pipeline-node">
+          <span>07</span>
+          <strong>OUTPUT</strong>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         AUDIO OVERLAY
+         =================================================== -->
+
+    <section
+      id="audio-overlay"
+      class="audio-overlay"
+    >
+
+      <div class="audio-title">
+        LAYER 2 // SPATIAL AUDIO PROJECTION
+      </div>
+
+      <div class="audio-grid">
+
+        <div class="audio-channel">
+
+          <span>LEFT</span>
+
+          <div class="audio-wave">
+            <i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i>
+          </div>
+
+          <strong id="audio-left">
+            0.00
+          </strong>
+
+        </div>
+
+
+        <div class="audio-channel">
+
+          <span>RIGHT</span>
+
+          <div class="audio-wave">
+            <i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i>
+          </div>
+
+          <strong id="audio-right">
+            0.00
+          </strong>
+
+        </div>
+
+
+        <div class="audio-channel">
+
+          <span>RESONANCE</span>
+
+          <div class="audio-wave resonance-wave">
+            <i></i><i></i><i></i><i></i><i></i>
+            <i></i><i></i><i></i><i></i><i></i>
+          </div>
+
+          <strong id="audio-resonance">
+            0.00
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </section>
+
+
+  <!-- =====================================================
+       RIGHT RUNTIME CONTROL COLUMN
+       ===================================================== -->
+
+  <aside id="right-console" class="runtime-column right-console">
+
+
+    <!-- RAY ENGINE -->
+    <section class="runtime-panel ray-panel">
+
+      <div class="panel-title">
+        <span>RAY ENGINE</span>
+        <span class="panel-index">101</span>
+      </div>
+
+      <div class="engine-readout">
+
+        <strong id="ray-count">
+          16384
+        </strong>
+
+        <span>
+          ACTIVE RAYS
+        </span>
+
+      </div>
+
+      <div class="engine-row">
+        <span>RAY STATE</span>
+        <strong id="ray-state">READY</strong>
+      </div>
+
+      <div class="engine-row">
+        <span>VECTOR STATE</span>
+        <strong id="vector-state">SYNC</strong>
+      </div>
+
+      <div class="engine-row">
+        <span>FRAME HASH</span>
+        <strong id="frame-hash">
+          --------
+        </strong>
+      </div>
+
+    </section>
+
+
+    <!-- MORPH MATRIX -->
+    <section class="runtime-panel morph-panel">
+
+      <div class="panel-title">
+        <span>MORPH MATRIX</span>
+        <span class="panel-index">102</span>
+      </div>
+
+      <div class="matrix">
+
+        <span>00</span>
+        <span>01</span>
+        <span>02</span>
+        <span>03</span>
+
+        <span>04</span>
+        <span>05</span>
+        <span>06</span>
+        <span>07</span>
+
+        <span>08</span>
+        <span>09</span>
+        <span>10</span>
+        <span>11</span>
+
+        <span>12</span>
+        <span>13</span>
+        <span>14</span>
+        <span>15</span>
+
+      </div>
+
+      <div class="matrix-state">
+        MATRIX STATE:
+        <strong id="matrix-state">
+          READY
+        </strong>
+      </div>
+
+    </section>
+
+
+    <!-- INPUT MATRIX -->
+    <section class="runtime-panel controls-panel">
+
+      <div class="panel-title">
+        <span>CONTROL MATRIX</span>
+        <span class="panel-index">103</span>
+      </div>
+
+      <div class="button-grid">
+
+        <button data-action="forward">FORWARD</button>
+        <button data-action="back">BACK</button>
+
+        <button data-action="strafe_left">
+          STRAFE L
+        </button>
+
+        <button data-action="strafe_right">
+          STRAFE R
+        </button>
+
+        <button data-action="turn_left">
+          TURN L
+        </button>
+
+        <button data-action="turn_right">
+          TURN R
+        </button>
+
+        <button data-action="fire">FIRE</button>
+        <button data-action="reload">RELOAD</button>
+
+        <button data-action="dash">DASH</button>
+
+        <button data-action="ability">
+          OVERCLOCK
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- TELEMETRY -->
+    <section class="runtime-panel telemetry-panel">
+
+      <div class="panel-title">
+        <span>LIVE TELEMETRY</span>
+        <span class="panel-index">104</span>
+      </div>
+
+      <div class="telemetry-row">
+        <span>FPS</span>
+        <strong id="telemetry-fps">0</strong>
+      </div>
+
+      <div class="telemetry-row">
+        <span>FRAME TIME</span>
+        <strong id="telemetry-frame-time">0 ms</strong>
+      </div>
+
+      <div class="telemetry-row">
+        <span>LATENCY</span>
+        <strong id="telemetry-latency">0 ms</strong>
+      </div>
+
+      <div class="telemetry-row">
+        <span>QUEUE</span>
+        <strong id="telemetry-queue">0</strong>
+      </div>
+
+      <div class="telemetry-row">
+        <span>EVENTS</span>
+        <strong id="telemetry-events">0</strong>
+      </div>
+
+      <div class="telemetry-row">
+        <span>UPTIME</span>
+        <strong id="telemetry-uptime">00:00:00</strong>
+      </div>
+
+    </section>
+
+
+    <!-- SYSTEM MODULES -->
+    <section class="runtime-panel modules-panel">
+
+      <div class="panel-title">
+        <span>SYSTEM MODULES</span>
+        <span class="panel-index">105</span>
+      </div>
+
+      <div class="module">
+        <span>HFBT</span>
+        <strong>ONLINE</strong>
+      </div>
+
+      <div class="module">
+        <span>R-COREX</span>
+        <strong>ONLINE</strong>
+      </div>
+
+      <div class="module">
+        <span>RAY ENGINE</span>
+        <strong>ONLINE</strong>
+      </div>
+
+      <div class="module">
+        <span>MORPH MATRIX</span>
+        <strong>READY</strong>
+      </div>
+
+      <div class="module">
+        <span>AUDIO OVERLAY</span>
+        <strong>READY</strong>
+      </div>
+
+      <div class="module">
+        <span>PHYSICAL EMITTER</span>
+        <strong>BOUNDARY</strong>
+      </div>
+
+    </section>
+
+  </aside>
+
+</main>
+
+
+<!-- =======================================================
+     EVENT / JOURNAL SYSTEM
+     ======================================================= -->
+
+<section id="event-console" class="event-console">
+
+  <div class="event-header">
+
+    <span>
+      RUNTIME EVENT JOURNAL
+    </span>
+
+    <span id="event-counter">
+      EVENTS: 0
+    </span>
+
+  </div>
+
+  <div
+    id="event-stream"
+    class="event-stream"
+  >
+
+    <div class="event-entry">
+      <span>00:00:00</span>
+      <strong>BOOT</strong>
+      <span>HFBT runtime created</span>
+    </div>
+
+    <div class="event-entry">
+      <span>00:00:00</span>
+      <strong>FIELD</strong>
+      <span>Awaiting projection synchronization</span>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- =======================================================
+     BOTTOM SYSTEM BAR
+     ======================================================= -->
+
+<footer id="system-footer" class="system-footer">
+
+  <div class="footer-left">
+
+    <span class="footer-symbol">
+      ◆
+    </span>
+
+    <span>
+      HFBT // RCOREX-HF/1.1
+    </span>
+
+  </div>
+
+  <div
+    id="log"
+    class="log-box"
+  >
+    BOOTING :: WAITING FOR PLAYER CONNECTION
+  </div>
+
+  <div class="footer-right">
+
+    <span>
+      MODE:
+    </span>
+
+    <strong id="footer-mode">
+      VIRTUAL_SIMULATION
+    </strong>
+
+  </div>
+
+</footer>
+
+
+<!-- =======================================================
+     FULL-SCREEN BOOT SEQUENCE
+     ======================================================= -->
+
+<div
+  id="holographic-boot"
+  class="holographic-boot"
+>
+
+  <div class="boot-volume">
+
+    <div class="boot-orbit orbit-a"></div>
+    <div class="boot-orbit orbit-b"></div>
+    <div class="boot-orbit orbit-c"></div>
+
+    <div class="boot-core">
+
+      <div class="boot-logo">
+        HFBT
+      </div>
+
+      <div class="boot-title">
+        HOLOGRAPHIC FRAMES
+      </div>
+
+      <div class="boot-title">
+        BYTE TRANSPORT
+      </div>
+
+      <div
+        id="boot-progress"
+        class="boot-progress"
+      >
+        <div id="boot-progress-bar"></div>
+      </div>
+
+      <div
+        id="boot-status"
+        class="boot-status"
+      >
+        INITIALIZING R-COREX PROJECTION RUNTIME
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =======================================================
+     GLOBAL ALERT LAYER
+     ======================================================= -->
+
+<div
+  id="runtime-alert"
+  class="runtime-alert"
+  hidden
+>
+
+  <div class="alert-core">
+
+    <span class="alert-symbol">
+      !
+    </span>
+
+    <strong id="alert-title">
+      RUNTIME ALERT
+    </strong>
+
+    <span id="alert-message">
+      SYSTEM MESSAGE
+    </span>
+
+  </div>
+
+</div>
+
+  </div>  <!-- =========================================================
+       EXISTING GAME APPLICATION
+       ========================================================= -->  <script src="/app.js"></script>  <!-- =========================================================
+       HFBT MASSIVE RUNTIME ADAPTER
+       ========================================================= -->  <script>
+
+  (() => {
+
+    "use strict";
+
+
+    /*
+     * ==========================================================
+     * HFBT RUNTIME STATE
+     * ==========================================================
+     */
+
+    const HFBT = {
+
+      protocol: "RCOREX-HF/1.1",
+
+      runtime: "R-COREX",
+
+      mode: "VIRTUAL_SIMULATION",
+
+      physicalEmitter: false,
+
+      opticalOutput: false,
+
+      laserControl: false,
+
+      frame: 0,
+
+      fps: 0,
+
+      frameTime: 0,
+
+      latency: 0,
+
+      queue: 0,
+
+      events: 0,
+
+      rays: 16384,
+
+      field: "BOOT",
+
+      projection: "INITIALIZING",
+
+      resonance: 0,
+
+      coherence: 0,
+
+      startedAt: performance.now(),
+
+      lastFrameTime: performance.now(),
+
+      lastSecond: performance.now(),
+
+      frameCounter: 0,
+
+      uptime: 0,
+
+      vector: {
+
+        x: 0,
+
+        y: 0,
+
+        z: 0,
+
+        rx: 0,
+
+        ry: 0,
+
+        rz: 0
+
+      },
+
+      audio: {
+
+        left: 0,
+
+        right: 0,
+
+        resonance: 0
+
+      },
+
+      modules: {
+
+        field: "BOOT",
+
+        rays: "BOOT",
+
+        morph: "BOOT",
+
+        frame: "BOOT",
+
+        audio: "BOOT",
+
+        transport: "BOUNDARY"
+
+      },
+
+      eventBus: [],
+
+      frameHistory: [],
+
+      codeHistory: []
+
+    };
+
+
+    /*
+     * ==========================================================
+     * DOM
+     * ==========================================================
+     */
+
+    const $ = id =>
+      document.getElementById(id);
+
+
+    /*
+     * ==========================================================
+     * BASIC DOM UPDATE
+     * ==========================================================
+     */
+
+    function set(id, value) {
+
+      const element = $(id);
+
+      if (element) {
+
+        element.textContent = value;
+
+      }
+
+    }
+
+
+    function percent(value) {
+
+      return Math.max(
+        0,
+        Math.min(
+          100,
+          value * 100
+        )
+      );
+
+    }
+
+
+    /*
+     * ==========================================================
+     * EVENT JOURNAL
+     * ==========================================================
+     */
+
+    function journal(type, message) {
+
+      HFBT.events++;
+
+      const time =
+        new Date()
+          .toISOString()
+          .split("T")[1]
+          .replace("Z", "");
+
+      const entry = {
+
+        id: HFBT.events,
+
+        time,
+
+        type,
+
+        message,
+
+        frame: HFBT.frame
+
+      };
+
+      HFBT.eventBus.push(entry);
+
+      if (HFBT.eventBus.length > 100) {
+
+        HFBT.eventBus.shift();
+
+      }
+
+
+      const stream = $("event-stream");
+
+      if (!stream) return;
+
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "event-entry";
+
+      row.innerHTML = `
+
+        <span>${time}</span>
+
+        <strong>${type}</strong>
+
+        <span>${message}</span>
+
+      `;
+
+      stream.prepend(row);
+
+
+      while (
+        stream.children.length > 12
+      ) {
+
+        stream.removeChild(
+          stream.lastChild
+        );
+
+      }
+
+
+      set(
+        "event-counter",
+        `EVENTS: ${HFBT.events}`
+      );
+
+      set(
+        "telemetry-events",
+        HFBT.events
+      );
+
+    }
+
+
+    /*
+     * ==========================================================
+     * PROJECTED CODE STREAM
+     * ==========================================================
+     */
+
+    function projectCode(code) {
+
+      HFBT.codeHistory.push(code);
+
+      if (
+        HFBT.codeHistory.length > 20
+      ) {
+
+        HFBT.codeHistory.shift();
+
+      }
+
+
+      const output =
+        $("code-stream");
+
+      if (!output) return;
+
+      output.textContent =
+        HFBT.codeHistory.join("\n");
+
+    }
+
+
+    /*
+     * ==========================================================
+     * RUNTIME STATE SYNCHRONIZATION
+     * ==========================================================
+     */
+
+    function syncRuntimeUI() {
+
+      set(
+        "runtime-protocol",
+        HFBT.protocol
+      );
+
+      set(
+        "runtime",
+        HFBT.runtime
+      );
+
+      set(
+        "field-status",
+        HFBT.field
+      );
+
+      set(
+        "emitter-status",
+        HFBT.physicalEmitter
+          ? "PHYSICAL"
+          : "VIRTUAL"
+      );
+
+      set(
+        "frame",
+        HFBT.frame
+      );
+
+      set(
+        "runtime-mode",
+        HFBT.mode
+      );
+
+      set(
+        "physical-emitter",
+        String(
+          HFBT.physicalEmitter
+        ).toUpperCase()
+      );
+
+      set(
+        "optical-output",
+        HFBT.opticalOutput
+          ? "ENABLED"
+          : "DISABLED"
+      );
+
+      set(
+        "laser-control",
+        HFBT.laserControl
+          ? "ENABLED"
+          : "DISABLED"
+      );
+
+      set(
+        "footer-mode",
+        HFBT.mode
+      );
+
+      set(
+        "ray-count",
+        HFBT.rays
+      );
+
+      set(
+        "ray-state",
+        HFBT.modules.rays
+      );
+
+      set(
+        "matrix-state",
+        HFBT.modules.morph
+      );
+
+      set(
+        "field-status",
+        HFBT.field
+      );
+
+
+      set(
+        "vector-x",
+        HFBT.vector.x.toFixed(3)
+      );
+
+      set(
+        "vector-y",
+        HFBT.vector.y.toFixed(3)
+      );
+
+      set(
+        "vector-z",
+        HFBT.vector.z.toFixed(3)
+      );
+
+      set(
+        "vector-rx",
+        HFBT.vector.rx.toFixed(3)
+      );
+
+      set(
+        "vector-ry",
+        HFBT.vector.ry.toFixed(3)
+      );
+
+      set(
+        "vector-rz",
+        HFBT.vector.rz.toFixed(3)
+      );
+
+
+      set(
+        "hud-x",
+        Math.round(
+          HFBT.vector.x
+        )
+      );
+
+      set(
+        "hud-y",
+        Math.round(
+          HFBT.vector.y
+        )
+      );
+
+      set(
+        "hud-z",
+        Math.round(
+          HFBT.vector.z
+        )
+      );
+
+
+      set(
+        "resonance-value",
+        HFBT.resonance.toFixed(6)
+      );
+
+      set(
+        "coherence-value",
+        `${Math.round(
+          percent(HFBT.coherence)
+        )}%`
+      );
+
+      set(
+        "field-value",
+        `${Math.round(
+          HFBT.fieldStrength * 100
+        )}%`
+      );
+
+
+      const coherence =
+        $("coherence-meter");
+
+      if (coherence) {
+
+        coherence.style.width =
+          `${percent(HFBT.coherence)}%`;
+
+      }
+
+
+      const field =
+        $("field-meter");
+
+      if (field) {
+
+        field.style.width =
+          `${HFBT.fieldStrength * 100}%`;
+
+      }
+
+
+      set(
+        "audio-left",
+        HFBT.audio.left.toFixed(2)
+      );
+
+      set(
+        "audio-right",
+        HFBT.audio.right.toFixed(2)
+      );
+
+      set(
+        "audio-resonance",
+        HFBT.audio.resonance.toFixed(2)
+      );
+
+
+      set(
+        "telemetry-fps",
+        HFBT.fps
+      );
+
+      set(
+        "telemetry-frame-time",
+        `${HFBT.frameTime.toFixed(2)} ms`
+      );
+
+      set(
+        "telemetry-latency",
+        `${HFBT.latency.toFixed(2)} ms`
+      );
+
+      set(
+        "telemetry-queue",
+        HFBT.queue
+      );
+
+    }
+
+
+    /*
+     * ==========================================================
+     * FIELD INITIALIZATION
+     * ==========================================================
+     */
+
+    function initializeField() {
+
+      HFBT.field = "ONLINE";
+
+      HFBT.projection = "ACTIVE";
+
+      HFBT.modules.field = "ONLINE";
+
+      HFBT.modules.rays = "ONLINE";
+
+      HFBT.modules.morph = "READY";
+
+      HFBT.modules.frame = "READY";
+
+      HFBT.modules.audio = "READY";
+
+      HFBT.fieldStrength = 0.82;
+
+      HFBT.coherence = 0.7076129521834406;
+
+      HFBT.resonance = 0.4467788645683021;
+
+
+      projectCode(
+        "HFBT::FIELD_INIT"
+      );
+
+      projectCode(
+        "RCOREX::PROJECTION_SPACE"
+      );
+
+      projectCode(
+        "RAY_ENGINE::16384"
+      );
+
+      projectCode(
+        "MORPH_MATRIX::READY"
+      );
+
+      projectCode(
+        "FRAME_TRANSPORT::READY"
+      );
+
+      projectCode(
+        "AUDIO_OVERLAY::READY"
+      );
+
+
+      journal(
+        "FIELD",
+        "Holographic projection field online"
+      );
+
+
+      syncRuntimeUI();
+
+    }
+
+
+    /*
+     * ==========================================================
+     * FRAME GENERATION
+     * ==========================================================
+     */
+
+    function generateFrame(timestamp) {
+
+      const delta =
+        timestamp -
+        HFBT.lastFrameTime;
+
+      HFBT.lastFrameTime =
+        timestamp;
+
+      HFBT.frameTime =
+        delta;
+
+      HFBT.frame++;
+
+      HFBT.frameCounter++;
+
+
+      /*
+       * The values below represent runtime visualization
+       * state. They do not claim physical optical emission.
+       */
+
+      const time =
+        timestamp / 1000;
+
+
+      HFBT.vector.x =
+        Math.sin(time * 0.37) * 100;
+
+      HFBT.vector.y =
+        Math.cos(time * 0.29) * 50;
+
+      HFBT.vector.z =
+        Math.sin(time * 0.17) * 200;
+
+
+      HFBT.vector.rx =
+        (time * 12) % 360;
+
+      HFBT.vector.ry =
+        (time * 8) % 360;
+
+      HFBT.vector.rz =
+        (time * 4) % 360;
+
+
+      HFBT.audio.left =
+        Math.sin(time * 2.1);
+
+      HFBT.audio.right =
+        Math.cos(time * 2.4);
+
+      HFBT.audio.resonance =
+        Math.sin(time * 0.8);
+
+
+      HFBT.resonance =
+        0.4467788645683021 +
+        Math.sin(time * 0.5) * 0.02;
+
+
+      HFBT.coherence =
+        0.7076129521834406 +
+        Math.sin(time * 0.31) * 0.03;
+
+
+      HFBT.queue =
+        Math.floor(
+          Math.abs(
+            Math.sin(time)
+          ) * 12
+        );
+
+
+      /*
+       * lightweight deterministic frame signature
+       */
+
+      const hashValue =
+        (
+          HFBT.frame *
+          2654435761
+        ) >>> 0;
+
+      set(
+        "frame-hash",
+        hashValue
+          .toString(16)
+          .padStart(8, "0")
+      );
+
+
+      if (
+        HFBT.frame % 120 === 0
+      ) {
+
+        projectCode(
+          `FRAME::${HFBT.frame}::PROJECTED`
+        );
+
+      }
+
+
+      syncRuntimeUI();
+
+    }
+
+
+    /*
+     * ==========================================================
+     * FPS COUNTER
+     * ==========================================================
+     */
+
+    function updateFPS(timestamp) {
+
+      if (
+        timestamp -
+        HFBT.lastSecond >= 1000
+      ) {
+
+        HFBT.fps =
+          HFBT.frameCounter;
+
+        HFBT.frameCounter = 0;
+
+        HFBT.lastSecond =
+          timestamp;
+
+        set(
+          "frame-rate",
+          `${HFBT.fps} FPS`
+        );
+
+      }
+
+    }
+
+
+    /*
+     * ==========================================================
+     * UPTIME
+     * ==========================================================
+     */
+
+    function updateUptime(timestamp) {
+
+      HFBT.uptime =
+        timestamp -
+        HFBT.startedAt;
+
+
+      const seconds =
+        Math.floor(
+          HFBT.uptime / 1000
+        );
+
+
+      const hours =
+        Math.floor(
+          seconds / 3600
+        )
+        .toString()
+        .padStart(2, "0");
+
+
+      const minutes =
+        Math.floor(
+          (seconds % 3600) / 60
+        )
+        .toString()
+        .padStart(2, "0");
+
+
+      const secs =
+        (seconds % 60)
+          .toString()
+          .padStart(2, "0");
+
+
+      set(
+        "telemetry-uptime",
+        `${hours}:${minutes}:${secs}`
+      );
+
+    }
+
+
+    /*
+     * ==========================================================
+     * MAIN PROJECTION LOOP
+     * ==========================================================
+     */
+
+    function runtimeLoop(timestamp) {
+
+      generateFrame(timestamp);
+
+      updateFPS(timestamp);
+
+      updateUptime(timestamp);
+
+      requestAnimationFrame(
+        runtimeLoop
+      );
+
+    }
+
+
+    /*
+     * ==========================================================
+     * PUBLIC HFBT API
+     * ==========================================================
+     */
+
+    window.HFBTProjection = {
+
+      state: HFBT,
+
+
+      project(payload) {
+
+        projectCode(
+          `PROJECT::${String(payload)}`
+        );
+
+      },
+
+
+      emit(payload) {
+
+        /*
+         * This is intentionally a logical transport boundary.
+         * No physical laser or optical emitter is activated.
+         */
+
+        HFBT.queue++;
+
+        journal(
+          "TRANSPORT",
+          "Logical projection payload queued"
+        );
+
+
+        projectCode(
+          `EMIT::${JSON.stringify(payload)}`
+        );
+
+      },
+
+
+      setField(state) {
+
+        HFBT.field =
+          String(state);
+
+        syncRuntimeUI();
+
+      },
+
+
+      setMode(mode) {
+
+        HFBT.mode =
+          String(mode);
+
+        syncRuntimeUI();
+
+      },
+
+
+      setEmitter(enabled) {
+
+        HFBT.physicalEmitter =
+          Boolean(enabled);
+
+        /*
+         * Hardware remains unavailable unless a real hardware
+         * transport explicitly establishes the capability.
+         */
+
+        syncRuntimeUI();
+
+      },
+
+
+      setVector(vector) {
+
+        HFBT.vector = {
+
+          ...HFBT.vector,
+
+          ...vector
+
+        };
+
+        syncRuntimeUI();
+
+      },
+
+
+      setAudio(audio) {
+
+        HFBT.audio = {
+
+          ...HFBT.audio,
+
+          ...audio
+
+        };
+
+        syncRuntimeUI();
+
+      },
+
+
+      journal,
+
+      getState() {
+
+        return structuredClone(
+          HFBT
+        );
+
+      }
+
+    };
+
+
+    /*
+     * ==========================================================
+     * CONTROL MATRIX BRIDGE
+     * ==========================================================
+     */
+
+    document
+      .querySelectorAll(
+        "[data-action]"
+      )
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            const action =
+              button.dataset.action;
+
+
+            projectCode(
+              `INPUT::${action.toUpperCase()}`
+            );
+
+
+            journal(
+              "INPUT",
+              `Operator action: ${action}`
+            );
+
+
+            /*
+             * Preserve compatibility with app.js.
+             *
+             * Existing handlers can continue using the
+             * data-action attribute.
+             */
+
+            button.classList.add(
+              "control-active"
+            );
+
+
+            setTimeout(
+              () => {
+
+                button.classList.remove(
+                  "control-active"
+                );
+
+              },
+              120
+            );
+
+          }
+        );
+
+      });
+
+
+    /*
+     * ==========================================================
+     * VIEW MATRIX
+     * ==========================================================
+     */
+
+    document
+      .querySelectorAll(
+        "[data-view]"
+      )
+      .forEach(button => {
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            const view =
+              button.dataset.view;
+
+
+            document.body.dataset.view =
+              view;
+
+
+            journal(
+              "VIEW",
+              `Projection view changed to ${view}`
+            );
+
+
+            projectCode(
+              `VIEW::${view.toUpperCase()}`
+            );
+
+          }
+        );
+
+      });
+
+
+    /*
+     * ==========================================================
+     * BOOT SEQUENCE
+     * ==========================================================
+     */
+
+    function boot() {
+
+      const bootBar =
+        $("boot-progress-bar");
+
+      const bootStatus =
+        $("boot-status");
+
+      const bootScreen =
+        $("holographic-boot");
+
+
+      const stages = [
+
+        "ALLOCATING PROJECTION SPACE",
+
+        "INITIALIZING R-COREX",
+
+        "INITIALIZING RAY FIELD",
+
+        "INITIALIZING MORPH MATRIX",
+
+        "INITIALIZING FRAME TRANSPORT",
+
+        "INITIALIZING AUDIO OVERLAY",
+
+        "SYNCHRONIZING OPERATOR INPUT",
+
+        "ESTABLISHING HOLOGRAPHIC FIELD"
+
+      ];
+
+
+      let index = 0;
+
+
+      const timer =
+        setInterval(() => {
+
+          const progress =
+            ((index + 1) /
+              stages.length) *
+            100;
+
+
+          if (bootBar) {
+
+            bootBar.style.width =
+              `${progress}%`;
+
+          }
+
+
+          if (bootStatus) {
+
+            bootStatus.textContent =
+              stages[index];
+
+          }
+
+
+          projectCode(
+            `BOOT::${stages[index]}`
+          );
+
+
+          index++;
+
+
+          if (
+            index >= stages.length
+          ) {
+
+            clearInterval(timer);
+
+
+            initializeField();
+
+
+            if (bootStatus) {
+
+              bootStatus.textContent =
+                "PROJECTION FIELD ONLINE";
+
+            }
+
+
+            setTimeout(() => {
+
+              if (bootScreen) {
+
+                bootScreen.classList.add(
+                  "boot-complete"
+                );
+
+              }
+
+
+              journal(
+                "BOOT",
+                "HFBT runtime operational"
+              );
+
+            }, 700);
+
+          }
+
+        }, 180);
+
+    }
+
+
+    /*
+     * ==========================================================
+     * INITIALIZE
+     * ==========================================================
+     */
+
+    HFBT.fieldStrength = 0;
+
+    syncRuntimeUI();
+
+    boot();
+
+    requestAnimationFrame(
+      runtimeLoop
+    );
+
+
+  })();
+
+  </script></body>
 </html>
